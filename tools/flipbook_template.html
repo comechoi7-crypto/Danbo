@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="출가교화단보 제407호">
+<meta property="og:description" content="원기111년 11월 · 넘겨 보는 단보">
+<meta property="og:image" content="https://comechoi7-crypto.github.io/Danbo/407/cover.jpg">
+<meta property="og:url" content="https://comechoi7-crypto.github.io/Danbo/407/">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>출가교화단보 제407호</title>
+<style>
+:root{--bg:#3a3330;--bar:#2b2522;--ink:#f3ebe5;--accent:#b8876b}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:radial-gradient(ellipse at center,#4a413c 0%,var(--bg) 70%);color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;overflow:hidden}
+header{height:48px;display:flex;align-items:center;justify-content:center;font-size:15px;letter-spacing:.04em;background:var(--bar);border-bottom:1px solid #00000055}
+header b{color:var(--accent);margin-right:.5em}
+#stage{position:absolute;top:48px;bottom:60px;left:0;right:0;display:flex;align-items:center;justify-content:center;padding:14px}
+#book{margin:0 auto}
+.page{background:#fff}
+.page img{width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.hot{position:absolute;display:block;border-radius:4px;outline:3px solid transparent;transition:outline-color .2s,background .2s;z-index:5;cursor:pointer}
+.hot:hover{outline-color:var(--accent);background:rgba(184,135,107,.12)}
+.hot::after{content:"신분검사 안내 바로가기";position:absolute;left:105%;top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--accent);color:#fff;font-size:11px;padding:3px 7px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none}
+.hot:hover::after{opacity:1}
+.hot.pulse{animation:pulse 1.6s ease-out 3}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(184,135,107,.8)}100%{box-shadow:0 0 0 14px rgba(184,135,107,0)}}
+footer{position:absolute;bottom:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:center;gap:14px;background:var(--bar);border-top:1px solid #00000055}
+button{background:#ffffff14;color:var(--ink);border:1px solid #ffffff2a;border-radius:20px;height:36px;min-width:44px;padding:0 14px;font-size:15px;cursor:pointer}
+button:hover{background:#ffffff26}
+#info{min-width:90px;text-align:center;font-variant-numeric:tabular-nums;font-size:14px}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:80px;border-radius:8px;font-size:26px;background:#00000030;border:none;z-index:10}
+#prevSide{left:8px}#nextSide{right:8px}
+@media (max-width:700px){.nav{display:none}.hot::after{display:none}}
+</style>
+</head>
+<body>
+<header><a href="../" style="position:absolute;left:14px;color:var(--ink);text-decoration:none;font-size:13px;opacity:.8">☰ 목록</a><b>출가교화단보</b> 제407호 · 원기111년 11월</header>
+<div id="stage">
+  <button class="nav" id="prevSide" aria-label="이전 페이지">‹</button>
+  <div id="book"></div>
+  <button class="nav" id="nextSide" aria-label="다음 페이지">›</button>
+</div>
+<footer>
+  <button id="first" aria-label="처음">⏮</button>
+  <button id="prev" aria-label="이전">◀</button>
+  <span id="info">1 / 12</span>
+  <button id="next" aria-label="다음">▶</button>
+  <button id="last" aria-label="마지막">⏭</button>
+</footer>
+<script>/*LIB*/</script>
+<script>
+// ▼ 신분검사 안내 링크 — 깃허브 페이지 주소로 바꾸려면 아래 한 줄만 수정하세요
+const SINBUN_URL = "https://comechoi7-crypto.github.io/sinbun/";
+const QR_PAGE = 12;               // 신분검사 안내 QR이 있는 페이지
+const PAGES = /*PAGES*/;
+const HOT = /*HOT*/;
+const RATIO = 1754/1241;
+
+const book = document.getElementById('book');
+PAGES.forEach((src,i)=>{
+  const d=document.createElement('div');
+  d.className='page'; d.dataset.density = (i===0||i===PAGES.length-1)?'hard':'soft';
+  const im=new Image(); im.src=src; im.alt=(i+1)+'쪽'; d.appendChild(im);
+  if(i+1===QR_PAGE && HOT.left!==undefined && SINBUN_URL){
+    const a=document.createElement('a');
+    a.className='hot'; a.href=SINBUN_URL; a.target='_blank'; a.rel='noopener';
+    a.title='신분검사 안내 페이지로 이동';
+    Object.assign(a.style,{left:HOT.left+'%',top:HOT.top+'%',width:HOT.width+'%',height:HOT.height+'%'});
+    a.addEventListener('mousedown',e=>e.stopPropagation());
+    a.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+    a.addEventListener('click',e=>{e.stopPropagation();});
+    d.appendChild(a);
+  }
+  book.appendChild(d);
+});
+
+function size(){
+  const st=document.getElementById('stage');
+  const portrait = innerWidth < 900 || innerWidth < innerHeight;
+  const availH = st.clientHeight-28, availW = st.clientWidth-(portrait?20:120);
+  let h = availH, w = h/RATIO;
+  const spread = portrait?1:2;
+  if(w*spread>availW){ w=availW/spread; h=w*RATIO; }
+  return {w:Math.floor(w),h:Math.floor(h),portrait};
+}
+const s=size();
+const pf = new St.PageFlip(book,{
+  width:s.w,height:s.h,size:'fixed',
+  showCover:true,usePortrait:s.portrait,
+  maxShadowOpacity:0.45,mobileScrollSupport:false,
+  flippingTime:700,clickEventForward:true,swipeDistance:20
+});
+pf.loadFromHTML(document.querySelectorAll('.page'));
+
+const info=document.getElementById('info');
+function upd(){
+  const i=pf.getCurrentPageIndex(), n=pf.getPageCount();
+  const o=pf.getOrientation();
+  info.textContent = (o==='landscape' && i>0 && i<n-1) ? `${i+1}–${i+2} / ${n}` : `${i+1} / ${n}`;
+  if(i+1===QR_PAGE || i+2===QR_PAGE){
+    const h=document.querySelector('.hot'); if(h) h.classList.remove('pulse'); if(h){void h.offsetWidth; h.classList.add('pulse');}
+  }
+}
+pf.on('flip',upd); pf.on('changeOrientation',upd); upd();
+
+const go=(f)=>()=>f();
+document.getElementById('prev').onclick=()=>pf.flipPrev();
+document.getElementById('next').onclick=()=>pf.flipNext();
+document.getElementById('prevSide').onclick=()=>pf.flipPrev();
+document.getElementById('nextSide').onclick=()=>pf.flipNext();
+document.getElementById('first').onclick=()=>pf.turnToPage(0)||upd();
+document.getElementById('last').onclick=()=>{pf.turnToPage(pf.getPageCount()-1);upd();};
+document.getElementById('first').onclick=()=>{pf.turnToPage(0);upd();};
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'||e.key==='PageUp')pf.flipPrev();
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')pf.flipNext();
+});
+let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{
+  const cur=pf.getCurrentPageIndex(); sessionStorageSafe(cur); location.reload();},400);});
+function sessionStorageSafe(v){try{sessionStorage.setItem('pg',v)}catch(e){}}
+try{const p=+sessionStorage.getItem('pg');if(p){pf.turnToPage(p);upd();}}catch(e){}
+</script>
+</body>
+</html>
