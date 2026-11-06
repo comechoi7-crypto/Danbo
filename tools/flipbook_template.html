@@ -38,12 +38,13 @@ button:hover{background:#ffffff26}
 #zv.on{display:flex}
 #zbar{height:52px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bar);border-bottom:1px solid #00000055;flex-wrap:nowrap}
 #zbar .sp{flex:1}
+#zfoot{height:60px;display:flex;align-items:center;justify-content:center;gap:14px;background:var(--bar);border-top:1px solid #00000055}
 #zpct{min-width:52px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums}
-#zpg{min-width:64px;text-align:center;font-size:13px;opacity:.8}
+#zpg{min-width:72px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums}
 #zc{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;text-align:center}
 #zc img{display:inline-block;margin:12px auto;background:#fff;box-shadow:0 4px 20px #0008;user-select:none;-webkit-user-drag:none}
-#zhint{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000a;color:#fff;font-size:13px;padding:8px 14px;border-radius:16px;pointer-events:none;transition:opacity .6s;z-index:101}
-@media (max-width:700px){footer{gap:6px}footer button{min-width:40px;padding:0 10px}#zoom .t{display:none}#info{min-width:64px}#zbar{gap:5px}#zbar button{min-width:38px;padding:0 10px}#zpg{display:none}}
+#zhint{position:fixed;left:50%;bottom:76px;max-width:90vw;text-align:center;transform:translateX(-50%);background:#000a;color:#fff;font-size:13px;padding:8px 14px;border-radius:16px;pointer-events:none;transition:opacity .6s;z-index:101}
+@media (max-width:700px){footer{gap:6px}footer button{min-width:40px;padding:0 10px}#zoom .t{display:none}#info{min-width:64px}#zbar{gap:5px}#zbar button{min-width:38px;padding:0 10px}}
 </style>
 </head>
 <body>
@@ -63,7 +64,6 @@ button:hover{background:#ffffff26}
 </footer>
 <div id="zv" role="dialog" aria-label="확대 보기">
   <div id="zbar">
-    <button id="zprev" aria-label="이전 쪽">◀</button><span id="zpg"></span><button id="znext" aria-label="다음 쪽">▶</button>
     <span class="sp"></span>
     <button id="zout" aria-label="축소">－</button><span id="zpct">100%</span><button id="zin" aria-label="확대">＋</button>
     <button id="zfit" aria-label="화면에 맞추기">맞춤</button>
@@ -71,6 +71,9 @@ button:hover{background:#ffffff26}
     <button id="zclose" aria-label="닫기">✕ 닫기</button>
   </div>
   <div id="zc"><img id="zimg" alt=""></div>
+  <div id="zfoot">
+    <button id="zprev" aria-label="이전 쪽">◀ 이전</button><span id="zpg"></span><button id="znext" aria-label="다음 쪽">다음 ▶</button>
+  </div>
 </div>
 <div id="zhint" style="opacity:0"></div>
 <script>/*LIB*/</script>
