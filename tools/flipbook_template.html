@@ -33,6 +33,17 @@ button:hover{background:#ffffff26}
 .nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:80px;border-radius:8px;font-size:26px;background:#00000030;border:none;z-index:10}
 #prevSide{left:8px}#nextSide{right:8px}
 @media (max-width:700px){.nav{display:none}.hot::after{display:none}}
+
+#zv{position:fixed;inset:0;background:#1e1a18f2;z-index:100;display:none;flex-direction:column}
+#zv.on{display:flex}
+#zbar{height:52px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bar);border-bottom:1px solid #00000055;flex-wrap:nowrap}
+#zbar .sp{flex:1}
+#zpct{min-width:52px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums}
+#zpg{min-width:64px;text-align:center;font-size:13px;opacity:.8}
+#zc{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;text-align:center}
+#zc img{display:inline-block;margin:12px auto;background:#fff;box-shadow:0 4px 20px #0008;user-select:none;-webkit-user-drag:none}
+#zhint{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000a;color:#fff;font-size:13px;padding:8px 14px;border-radius:16px;pointer-events:none;transition:opacity .6s;z-index:101}
+@media (max-width:700px){footer{gap:6px}footer button{min-width:40px;padding:0 10px}#zoom .t{display:none}#info{min-width:64px}#zbar{gap:5px}#zbar button{min-width:38px;padding:0 10px}#zpg{display:none}}
 </style>
 </head>
 <body>
@@ -48,7 +59,20 @@ button:hover{background:#ffffff26}
   <span id="info">1 / 12</span>
   <button id="next" aria-label="다음">▶</button>
   <button id="last" aria-label="마지막">⏭</button>
+  <button id="zoom" aria-label="확대해서 보기">🔍<span class="t"> 확대</span></button>
 </footer>
+<div id="zv" role="dialog" aria-label="확대 보기">
+  <div id="zbar">
+    <button id="zprev" aria-label="이전 쪽">◀</button><span id="zpg"></span><button id="znext" aria-label="다음 쪽">▶</button>
+    <span class="sp"></span>
+    <button id="zout" aria-label="축소">－</button><span id="zpct">100%</span><button id="zin" aria-label="확대">＋</button>
+    <button id="zfit" aria-label="화면에 맞추기">맞춤</button>
+    <span class="sp"></span>
+    <button id="zclose" aria-label="닫기">✕ 닫기</button>
+  </div>
+  <div id="zc"><img id="zimg" alt=""></div>
+</div>
+<div id="zhint" style="opacity:0"></div>
 <script>/*LIB*/</script>
 <script>
 // ▼ 신분검사 안내 링크 — 깃허브 페이지 주소로 바꾸려면 아래 한 줄만 수정하세요
@@ -117,7 +141,53 @@ addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'||e.key==='PageUp')pf.flipPrev();
   if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')pf.flipNext();
 });
-let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{
+
+// ── 확대 보기 ──
+const zv=document.getElementById('zv'), zc=document.getElementById('zc'), zimg=document.getElementById('zimg');
+let zPage=0, zScale=1;
+function zFitW(){ return Math.min(zc.clientWidth-24, (zc.clientHeight-24)/RATIO); }
+function zApply(keep){
+  const fw=zFitW(), oldW=zimg.width||fw;
+  const cx=(zc.scrollLeft+zc.clientWidth/2)/oldW, cy=(zc.scrollTop+zc.clientHeight/2)/(oldW*RATIO);
+  const w=Math.round(fw*zScale); zimg.style.width=w+'px'; zimg.style.height=Math.round(w*RATIO)+'px'; zimg.width=w;
+  document.getElementById('zpct').textContent=Math.round(zScale*100)+'%';
+  if(keep){ zc.scrollLeft=cx*w-zc.clientWidth/2; zc.scrollTop=cy*w*RATIO-zc.clientHeight/2; }
+}
+function zSet(sc,keep){ zScale=Math.min(4,Math.max(1,sc)); zApply(keep); }
+function zShow(i){ zPage=Math.max(0,Math.min(PAGES.length-1,i)); zimg.src=PAGES[zPage]; zimg.alt=(zPage+1)+'쪽';
+  document.getElementById('zpg').textContent=(zPage+1)+' / '+PAGES.length; zc.scrollTop=0; zc.scrollLeft=0; }
+function hint(t){ const h=document.getElementById('zhint'); h.textContent=t; h.style.opacity=1; clearTimeout(hint.t); hint.t=setTimeout(()=>h.style.opacity=0,2200); }
+function zOpen(i){ zv.classList.add('on'); zShow(i); zSet(innerWidth<700?1:1.6,false);
+  hint(innerWidth<700?'두 손가락으로 벌려 확대 · 두 번 톡 누르면 확대/맞춤':'＋/－ 또는 두 번 클릭으로 확대 · 드래그로 이동'); }
+function zClose(){ zv.classList.remove('on'); pf.turnToPage(zPage); upd(); }
+document.getElementById('zoom').onclick=()=>zOpen(pf.getCurrentPageIndex());
+document.getElementById('zclose').onclick=zClose;
+document.getElementById('zin').onclick=()=>zSet(zScale+0.5,true);
+document.getElementById('zout').onclick=()=>zSet(zScale-0.5,true);
+document.getElementById('zfit').onclick=()=>zSet(1,false);
+document.getElementById('zprev').onclick=()=>{zShow(zPage-1);zApply(false);};
+document.getElementById('znext').onclick=()=>{zShow(zPage+1);zApply(false);};
+// 확대 화면: 두 번 누르기 = 확대/맞춤 전환
+zimg.addEventListener('dblclick',()=>zSet(zScale>1.05?1:2.5,true));
+let lastTap=0; zimg.addEventListener('touchend',e=>{ if(e.touches.length) return; const t=Date.now(); if(t-lastTap<300){ zSet(zScale>1.05?1:2.5,true); e.preventDefault(); } lastTap=t; });
+// 마우스 드래그로 이동
+let drag=null;
+zc.addEventListener('mousedown',e=>{drag={x:e.clientX,y:e.clientY,l:zc.scrollLeft,t:zc.scrollTop};zc.style.cursor='grabbing';e.preventDefault();});
+addEventListener('mousemove',e=>{if(!drag)return;zc.scrollLeft=drag.l-(e.clientX-drag.x);zc.scrollTop=drag.t-(e.clientY-drag.y);});
+addEventListener('mouseup',()=>{drag=null;zc.style.cursor='';});
+// Ctrl+휠 확대
+zc.addEventListener('wheel',e=>{ if(!e.ctrlKey) return; e.preventDefault(); zSet(zScale*(e.deltaY<0?1.15:1/1.15),true); },{passive:false});
+// 두 손가락 핀치
+let pinch=null; const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+zc.addEventListener('touchstart',e=>{ if(e.touches.length===2){ pinch={d:dist(e.touches),s:zScale}; e.preventDefault(); } },{passive:false});
+zc.addEventListener('touchmove',e=>{ if(pinch&&e.touches.length===2){ e.preventDefault(); zSet(pinch.s*dist(e.touches)/pinch.d,true); } },{passive:false});
+zc.addEventListener('touchend',e=>{ if(e.touches.length<2) pinch=null; });
+addEventListener('keydown',e=>{ if(!zv.classList.contains('on')) return; e.stopImmediatePropagation();
+  if(e.key==='Escape') zClose(); else if(e.key==='+'||e.key==='=') zSet(zScale+0.5,true); else if(e.key==='-') zSet(zScale-0.5,true);
+  else if(e.key==='ArrowLeft'&&zScale<=1.05){zShow(zPage-1);zApply(false);} else if(e.key==='ArrowRight'&&zScale<=1.05){zShow(zPage+1);zApply(false);} },true);
+addEventListener('resize',()=>{ if(zv.classList.contains('on')) zApply(true); });
+
+let rt; addEventListener('resize',()=>{if(zv.classList.contains('on'))return;clearTimeout(rt);rt=setTimeout(()=>{
   const cur=pf.getCurrentPageIndex(); sessionStorageSafe(cur); location.reload();},400);});
 function sessionStorageSafe(v){try{sessionStorage.setItem('pg',v)}catch(e){}}
 try{const p=+sessionStorage.getItem('pg');if(p){pf.turnToPage(p);upd();}}catch(e){}
