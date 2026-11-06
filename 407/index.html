@@ -42,7 +42,8 @@ button:hover{background:#ffffff26}
 #zpct{min-width:52px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums}
 #zpg{min-width:72px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums}
 #zc{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;text-align:center}
-#zc img{display:inline-block;margin:12px auto;background:#fff;box-shadow:0 4px 20px #0008;user-select:none;-webkit-user-drag:none}
+#zwrap{position:relative;display:inline-block;margin:12px auto;vertical-align:top}
+#zc img{display:block;background:#fff;box-shadow:0 4px 20px #0008;user-select:none;-webkit-user-drag:none}
 #zhint{position:fixed;left:50%;bottom:76px;max-width:90vw;text-align:center;transform:translateX(-50%);background:#000a;color:#fff;font-size:13px;padding:8px 14px;border-radius:16px;pointer-events:none;transition:opacity .6s;z-index:101}
 @media (max-width:700px){footer{gap:6px}footer button{min-width:40px;padding:0 10px}#zoom .t{display:none}#info{min-width:64px}#zbar{gap:5px}#zbar button{min-width:38px;padding:0 10px}}
 </style>
@@ -70,7 +71,7 @@ button:hover{background:#ffffff26}
     <span class="sp"></span>
     <button id="zclose" aria-label="닫기">✕ 닫기</button>
   </div>
-  <div id="zc"><img id="zimg" alt=""></div>
+  <div id="zc"><div id="zwrap"><img id="zimg" alt=""><a id="zhot" class="hot" target="_blank" rel="noopener" title="신분검사 안내 페이지로 이동"></a></div></div>
   <div id="zfoot">
     <button id="zprev" aria-label="이전 쪽">◀ 이전</button><span id="zpg"></span><button id="znext" aria-label="다음 쪽">다음 ▶</button>
   </div>
@@ -159,6 +160,10 @@ function zApply(keep){
 }
 function zSet(sc,keep){ zScale=Math.min(4,Math.max(1,sc)); zApply(keep); }
 function zShow(i){ zPage=Math.max(0,Math.min(PAGES.length-1,i)); zimg.src=PAGES[zPage]; zimg.alt=(zPage+1)+'쪽';
+  const zh=document.getElementById('zhot');
+  if(zPage+1===QR_PAGE && HOT.left!==undefined && SINBUN_URL){ zh.href=SINBUN_URL; zh.style.display='block';
+    Object.assign(zh.style,{left:HOT.left+'%',top:HOT.top+'%',width:HOT.width+'%',height:HOT.height+'%'});
+    zh.classList.remove('pulse'); void zh.offsetWidth; zh.classList.add('pulse'); } else { zh.style.display='none'; zh.removeAttribute('href'); }
   document.getElementById('zpg').textContent=(zPage+1)+' / '+PAGES.length; zc.scrollTop=0; zc.scrollLeft=0; }
 function hint(t){ const h=document.getElementById('zhint'); h.textContent=t; h.style.opacity=1; clearTimeout(hint.t); hint.t=setTimeout(()=>h.style.opacity=0,2200); }
 function zOpen(i){ zv.classList.add('on'); zShow(i); zSet(innerWidth<700?1:1.6,false);
@@ -176,7 +181,7 @@ zimg.addEventListener('dblclick',()=>zSet(zScale>1.05?1:2.5,true));
 let lastTap=0; zimg.addEventListener('touchend',e=>{ if(e.touches.length) return; const t=Date.now(); if(t-lastTap<300){ zSet(zScale>1.05?1:2.5,true); e.preventDefault(); } lastTap=t; });
 // 마우스 드래그로 이동
 let drag=null;
-zc.addEventListener('mousedown',e=>{drag={x:e.clientX,y:e.clientY,l:zc.scrollLeft,t:zc.scrollTop};zc.style.cursor='grabbing';e.preventDefault();});
+zc.addEventListener('mousedown',e=>{if(e.target.id==='zhot')return;drag={x:e.clientX,y:e.clientY,l:zc.scrollLeft,t:zc.scrollTop};zc.style.cursor='grabbing';e.preventDefault();});
 addEventListener('mousemove',e=>{if(!drag)return;zc.scrollLeft=drag.l-(e.clientX-drag.x);zc.scrollTop=drag.t-(e.clientY-drag.y);});
 addEventListener('mouseup',()=>{drag=null;zc.style.cursor='';});
 // Ctrl+휠 확대
